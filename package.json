@@ -28,7 +28,8 @@
     "styled-components": "^5.3.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9"
+    "@babel/core": "^7.12.9",
+    "@types/styled-components": "^5.1.16"
   },
   "private": true
 }
