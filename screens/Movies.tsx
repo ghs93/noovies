@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
+  FlatList,
   RefreshControl,
   View,
 } from "react-native";
@@ -94,65 +95,69 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
       <ActivityIndicator color="red" />
     </Loader>
   ) : (
-    <Container
-      refreshControl={
-        <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-      }
-    >
-      <Swiper
-        horizontal
-        loop
-        autoplay
-        autoplayTimeout={3.5}
-        showsButtons={false}
-        showsPagination={false}
-        containerStyle={{
-          width: "100%",
-          height: SCREEN_HEIGHT / 4,
-          marginBottom: 40,
-        }}
-      >
-        {nowPlaying.map((movie) => (
-          <Slider
-            key={movie.id}
-            backdropPath={movie.backdrop_path}
-            posterPath={movie.poster_path}
-            originalTitle={movie.original_title}
-            voteAverage={movie.vote_average}
-            overview={movie.overview}
-          />
-        ))}
-      </Swiper>
-      <ListTitle>Trending Movies</ListTitle>
-      <ListContainer>
-        <TrendingScroll
-          data={trending}
-          contentContainerStyle={{ paddingLeft: 30 }}
-          horizontal
-          keyExtractor={(item) => `${item.id}`}
-          showsHorizontalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View style={{ width: 30 }} />}
-          renderItem={({ item }) => (
-            <VMedia
-              posterPath={item.poster_path}
-              originalTitle={item.original_title}
-              voteAverage={item.vote_average}
-            />
-          )}
-        ></TrendingScroll>
-      </ListContainer>
+    <FlatList
+      ListHeaderComponent={
+        <>
+          <Swiper
+            horizontal
+            loop
+            autoplay
+            autoplayTimeout={3.5}
+            showsButtons={false}
+            showsPagination={false}
+            containerStyle={{
+              width: "100%",
+              height: SCREEN_HEIGHT / 4,
+              marginBottom: 40,
+            }}
+          >
+            {nowPlaying.map((movie) => (
+              <Slider
+                key={movie.id}
+                backdropPath={movie.backdrop_path}
+                posterPath={movie.poster_path}
+                originalTitle={movie.original_title}
+                voteAverage={movie.vote_average}
+                overview={movie.overview}
+              />
+            ))}
+          </Swiper>
+          <ListTitle>Trending Movies</ListTitle>
+          <ListContainer>
+            <TrendingScroll
+              data={trending}
+              contentContainerStyle={{ paddingHorizontal: 30 }}
+              horizontal
+              keyExtractor={(item) => `${item.id}`}
+              showsHorizontalScrollIndicator={false}
+              ItemSeparatorComponent={() => <View style={{ width: 30 }} />}
+              renderItem={({ item }) => (
+                <VMedia
+                  posterPath={item.poster_path}
+                  originalTitle={item.original_title}
+                  voteAverage={item.vote_average}
+                />
+              )}
+            ></TrendingScroll>
+          </ListContainer>
 
-      <ComingSoonTitle>Coming Soon</ComingSoonTitle>
-      {upComing.map((movie) => (
+          <ComingSoonTitle>Coming Soon</ComingSoonTitle>
+        </>
+      }
+      data={upComing}
+      keyExtractor={(item) => `${item.id}`}
+      ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
+      renderItem={({ item }) => (
         <HMedia
-          key={movie.id}
-          posterPath={movie.poster_path}
-          originalTitle={movie.original_title}
-          overview={movie.overview}
-          releaseDate={movie.release_date}
+          posterPath={item.poster_path}
+          originalTitle={item.original_title}
+          overview={item.overview}
+          releaseDate={item.release_date}
         />
-      ))}
-    </Container>
+      )}
+      onRefresh={onRefresh}
+      refreshing={refreshing}
+    ></FlatList>
   );
 };
 
