@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { useQuery } from "react-query";
 import styled from "styled-components/native";
 import { moviesApi, tvApi } from "../api";
+import HList from "../components/HList";
+import Loader from "../components/Loader";
 
 const Container = styled.ScrollView``;
 
@@ -44,6 +46,11 @@ const Search = () => {
         onChangeText={onChangeText}
         onSubmitEditing={onSubmit}
       />
+      {moviesLoading || tvLoading ? <Loader /> : null}
+      {moviesData ? (
+        <HList title="Movie Results" data={moviesData.results} />
+      ) : null}
+      {tvData ? <HList title="Tv Results" data={tvData.results} /> : null}
     </Container>
   );
 };
