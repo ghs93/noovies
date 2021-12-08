@@ -2,7 +2,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Dimensions, FlatList, View } from "react-native";
 import Swiper from "react-native-swiper";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import styled from "styled-components/native";
 import { moviesApi } from "../api";
 import HMedia from "../components/HMedia";
@@ -44,21 +44,26 @@ const HSeparator = styled.View`
 `;
 
 const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
-  const [refreshing, setRefreshing] = useState(false);
-  const { isLoading: nowPlayingLoading, data: nowPlayingData } = useQuery(
-    "nowPlaying",
-    moviesApi.nowPlaying
-  );
-  const { isLoading: trendingLoading, data: trendingData } = useQuery(
-    "trending",
-    moviesApi.trending
-  );
-  const { isLoading: upcomingLoading, data: upcomingData } = useQuery(
-    "upcoming",
-    moviesApi.upcoming
-  );
+  const queryClient = useQueryClient();
+  const {
+    isLoading: nowPlayingLoading,
+    data: nowPlayingData,
+    isRefetching: isRefetchingNowPlaying,
+  } = useQuery(["movies", "nowPlaying"], moviesApi.nowPlaying);
+  const {
+    isLoading: trendingLoading,
+    data: trendingData,
+    isRefetching: isRefetchingTrending,
+  } = useQuery(["movies", "trending"], moviesApi.trending);
+  const {
+    isLoading: upcomingLoading,
+    data: upcomingData,
+    isRefetching: isRefetchingUpcoming,
+  } = useQuery(["movies", "upcoming"], moviesApi.upcoming);
 
-  const onRefresh = async () => {};
+  const onRefresh = async () => {
+    queryClient.refetchQueries(["movies"]);
+  };
   const renderVMedia = ({ item }) => (
     <VMedia
       posterPath={item.poster_path}
@@ -76,12 +81,17 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   );
   const movieKeyExtractor = (item) => item.id + "";
   const loading = nowPlayingLoading || trendingLoading || upcomingLoading;
+  const refreshing =
+    isRefetchingNowPlaying || isRefetchingTrending || isRefetchingUpcoming;
+  console.log(refreshing);
   return loading ? (
     <Loader>
       <ActivityIndicator color="red" />
     </Loader>
   ) : (
     <FlatList
+      onRefresh={onRefresh}
+      refreshing={refreshing}
       ListHeaderComponent={
         <>
           <Swiper
