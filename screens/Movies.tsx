@@ -1,29 +1,20 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Dimensions, FlatList, View } from "react-native";
+import React from "react";
+import { Dimensions, FlatList } from "react-native";
 import Swiper from "react-native-swiper";
 import { useQuery, useQueryClient } from "react-query";
 import styled from "styled-components/native";
-import { Movie, MovieResponse, moviesApi } from "../api";
+import { MovieResponse, moviesApi } from "../api";
 import HMedia from "../components/HMedia";
+import Loader from "../components/Loader";
 import Slider from "../components/Slider";
 import VMedia from "../components/VMedia";
-
-const Loader = styled.View`
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-`;
 
 const ListTitle = styled.Text`
   color: white;
   font-size: 18px;
   font-weight: 600;
   margin-left: 30px;
-`;
-
-const TrendingScroll = styled.FlatList`
-  margin-top: 20px;
 `;
 
 const ListContainer = styled.View`
@@ -70,9 +61,7 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
     isRefetchingNowPlaying || isRefetchingTrending || isRefetchingUpcoming;
 
   return loading ? (
-    <Loader>
-      <ActivityIndicator color="red" />
-    </Loader>
+    <Loader />
   ) : upcomingData ? (
     <FlatList
       onRefresh={onRefresh}
@@ -106,7 +95,8 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
           <ListTitle>Trending Movies</ListTitle>
           <ListContainer>
             {trendingData ? (
-              <TrendingScroll
+              <FlatList
+                style={{ marginTop: 20 }}
                 data={trendingData.results}
                 keyExtractor={(item) => item.id + ""}
                 contentContainerStyle={{ paddingHorizontal: 30 }}
@@ -120,7 +110,7 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
                     voteAverage={item.vote_average}
                   />
                 )}
-              ></TrendingScroll>
+              />
             ) : null}
           </ListContainer>
 
