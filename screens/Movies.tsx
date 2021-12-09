@@ -40,13 +40,26 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   const [refreshing, setRefreshing] = useState(false);
   const { isLoading: nowPlayingLoading, data: nowPlayingData } =
     useQuery<MovieResponse>(["movies", "nowPlaying"], moviesApi.nowPlaying);
-  const { isLoading: trendingLoading, data: trendingData } =
-    useQuery<MovieResponse>(["movies", "trending"], moviesApi.trending);
+  const {
+    isLoading: trendingLoading,
+    data: trendingData,
+    hasNextPage: trendingHasNextPage,
+    fetchNextPage: trendingFetchNextPage,
+  } = useInfiniteQuery<MovieResponse>(
+    ["movies", "trending"],
+    moviesApi.trending,
+    {
+      getNextPageParam: (currentPage) => {
+        const nextPage = currentPage.page + 1;
+        return nextPage > currentPage.total_pages ? null : nextPage;
+      },
+    }
+  );
   const {
     isLoading: upcomingLoading,
     data: upcomingData,
-    hasNextPage,
-    fetchNextPage,
+    hasNextPage: upcomingHasNextPage,
+    fetchNextPage: upcomingFetchNextPage,
   } = useInfiniteQuery<MovieResponse>(
     ["movies", "upcoming"],
     moviesApi.upcoming,
@@ -66,9 +79,15 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
 
   const loading = nowPlayingLoading || trendingLoading || upcomingLoading;
 
-  const loadMore = () => {
-    if (hasNextPage) {
-      fetchNextPage();
+  const upComingLoadMore = () => {
+    if (upcomingHasNextPage) {
+      upcomingFetchNextPage();
+    }
+  };
+
+  const trendingLoadMore = () => {
+    if (trendingHasNextPage) {
+      trendingFetchNextPage();
     }
   };
 
@@ -76,7 +95,7 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
     <Loader />
   ) : upcomingData ? (
     <FlatList
-      onEndReached={loadMore}
+      onEndReached={upComingLoadMore}
       onRefresh={onRefresh}
       refreshing={refreshing}
       ListHeaderComponent={
@@ -107,7 +126,11 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
             ))}
           </Swiper>
           {trendingData ? (
-            <HList title="Trending Movies" data={trendingData.results} />
+            <HList
+              title="Trending Movies"
+              data={trendingData.pages.map((page) => page.results).flat()}
+              onEndReached={trendingLoadMore}
+            />
           ) : null}
 
           <ComingSoonTitle>Coming Soon</ComingSoonTitle>

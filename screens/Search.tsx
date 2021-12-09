@@ -1,6 +1,6 @@
 import { isLoaded, isLoading } from "expo-font";
 import React, { useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery, useInfiniteQuery } from "react-query";
 import styled from "styled-components/native";
 import { moviesApi, tvApi } from "../api";
 import HList from "../components/HList";
@@ -22,12 +22,28 @@ const Search = () => {
     isLoading: moviesLoading,
     data: moviesData,
     refetch: searchMovies,
-  } = useQuery(["searchMovies", query], moviesApi.search, { enabled: false });
+    hasNextPage: movieHasNextPage,
+    fetchNextPage: movieFetchNextPage,
+  } = useInfiniteQuery(["searchMovies", query], moviesApi.search, {
+    enabled: false,
+    getNextPageParam: (currentPage) => {
+      const nextPage = currentPage.page + 1;
+      return nextPage > currentPage.total_pages ? null : nextPage;
+    },
+  });
   const {
     isLoading: tvLoading,
     data: tvData,
     refetch: searchTv,
-  } = useQuery(["searchTv", query], tvApi.search, { enabled: false });
+    hasNextPage: tvHasNextPage,
+    fetchNextPage: tvFetchNextPage,
+  } = useInfiniteQuery(["searchTv", query], tvApi.search, {
+    enabled: false,
+    getNextPageParam: (currentPage) => {
+      const nextPage = currentPage.page + 1;
+      return nextPage > currentPage.total_pages ? null : nextPage;
+    },
+  });
   const onChangeText = (text: string) => setQuery(text);
   const onSubmit = () => {
     if (query === "") {
@@ -48,9 +64,19 @@ const Search = () => {
       />
       {moviesLoading || tvLoading ? <Loader /> : null}
       {moviesData ? (
-        <HList title="Movie Results" data={moviesData.results} />
+        <HList
+          title="Movie Results"
+          data={moviesData.pages.map((page) => page.results).flat()}
+          onEndReached={movieHasNextPage ? movieFetchNextPage : null}
+        />
       ) : null}
-      {tvData ? <HList title="Tv Results" data={tvData.results} /> : null}
+      {tvData ? (
+        <HList
+          title="Tv Results"
+          data={tvData.pages.map((page) => page.results).flat()}
+          onEndReached={tvHasNextPage ? tvFetchNextPage : null}
+        />
+      ) : null}
     </Container>
   );
 };

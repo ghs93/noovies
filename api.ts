@@ -149,10 +149,12 @@ interface TVFetchers {
 }
 
 export const moviesApi: MovieFetchers = {
-  trending: () =>
-    fetch(`${BASE_URL}/trending/movie/week?api_key=${API_KEY}`).then((res) =>
-      res.json()
-    ),
+  trending: ({ pageParam }) =>
+    fetch(
+      `${BASE_URL}/trending/movie/week?api_key=${API_KEY}&page=${
+        pageParam ?? 1
+      }`
+    ).then((res) => res.json()),
   upcoming: ({ pageParam }) =>
     fetch(
       `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&language=en-US&page=${pageParam}`
@@ -161,10 +163,10 @@ export const moviesApi: MovieFetchers = {
     fetch(
       `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=en-US&page=1`
     ).then((res) => res.json()),
-  search: ({ queryKey }) => {
+  search: ({ queryKey, pageParam }) => {
     const [_, query] = queryKey;
     return fetch(
-      `${BASE_URL}/search/movie?api_key=${API_KEY}&language=en-US&page=1&query=${query}`
+      `${BASE_URL}/search/movie?api_key=${API_KEY}&language=en-US&page=${pageParam}&query=${query}`
     ).then((res) => res.json());
   },
   detail: ({ queryKey }) => {
@@ -176,22 +178,22 @@ export const moviesApi: MovieFetchers = {
 };
 
 export const tvApi: TVFetchers = {
-  trending: () =>
-    fetch(`${BASE_URL}/trending/tv/week?api_key=${API_KEY}`).then((res) =>
-      res.json()
-    ),
-  airingToday: () =>
-    fetch(`${BASE_URL}/tv/airing_today?api_key=${API_KEY}`).then((res) =>
-      res.json()
-    ),
-  topRated: () =>
-    fetch(`${BASE_URL}/tv/top_rated?api_key=${API_KEY}`).then((res) =>
-      res.json()
-    ),
-  search: ({ queryKey }) => {
+  trending: ({ pageParam }) =>
+    fetch(
+      `${BASE_URL}/trending/tv/week?api_key=${API_KEY}&page=${pageParam ?? 1}`
+    ).then((res) => res.json()),
+  airingToday: ({ pageParam }) =>
+    fetch(
+      `${BASE_URL}/tv/airing_today?api_key=${API_KEY}&page=${pageParam ?? 1}`
+    ).then((res) => res.json()),
+  topRated: ({ pageParam }) =>
+    fetch(
+      `${BASE_URL}/tv/top_rated?api_key=${API_KEY}&page=${pageParam ?? 1}`
+    ).then((res) => res.json()),
+  search: ({ queryKey, pageParam }) => {
     const [_, query] = queryKey;
     return fetch(
-      `${BASE_URL}/search/tv?api_key=${API_KEY}&language=en-US&page=1&query=${query}`
+      `${BASE_URL}/search/tv?api_key=${API_KEY}&language=en-US&page=${pageParam}&query=${query}`
     ).then((res) => res.json());
   },
   detail: ({ queryKey }) => {
