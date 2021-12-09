@@ -18,6 +18,7 @@
     "expo-splash-screen": "~0.13.5",
     "expo-status-bar": "~1.1.0",
     "expo-updates": "~0.10.13",
+    "expo-web-browser": "~10.0.3",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.3",
@@ -30,8 +31,7 @@
     "react-native-web-swiper": "^2.2.1",
     "react-query": "^3.34.0",
     "styled-components": "^5.3.3",
-    "expo-linear-gradient": "~10.0.3",
-    "expo-web-browser": "~10.0.3"
+    "expo-linear-gradient": "~10.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
