@@ -42,8 +42,21 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
     useQuery<MovieResponse>(["movies", "nowPlaying"], moviesApi.nowPlaying);
   const { isLoading: trendingLoading, data: trendingData } =
     useQuery<MovieResponse>(["movies", "trending"], moviesApi.trending);
-  const { isLoading: upcomingLoading, data: upcomingData } =
-    useInfiniteQuery<MovieResponse>(["movies", "upcoming"], moviesApi.upcoming);
+  const {
+    isLoading: upcomingLoading,
+    data: upcomingData,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery<MovieResponse>(
+    ["movies", "upcoming"],
+    moviesApi.upcoming,
+    {
+      getNextPageParam: (currentPage) => {
+        const nextPage = currentPage.page + 1;
+        return nextPage > currentPage.total_pages ? null : nextPage;
+      },
+    }
+  );
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -54,7 +67,9 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   const loading = nowPlayingLoading || trendingLoading || upcomingLoading;
 
   const loadMore = () => {
-    alert("load more!");
+    if (hasNextPage) {
+      fetchNextPage();
+    }
   };
 
   return loading ? (
@@ -62,7 +77,6 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   ) : upcomingData ? (
     <FlatList
       onEndReached={loadMore}
-      onEndReachedThreshold={0.4}
       onRefresh={onRefresh}
       refreshing={refreshing}
       ListHeaderComponent={
